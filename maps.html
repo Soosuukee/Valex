@@ -3,9 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Valex Map</title>
+    <link href="./dist/output.css" rel="stylesheet" />
+    <title>Valex Maps</title>
   </head>
-  <body>
-    <script src="./src/map.js"></script>
+
+  <body class="p-4">
+    <header>
+      <h1 class="text-3xl font-bold text-red-500">Welcome to the Maps page</h1>
+      <nav>
+        <ul class="flex gap-4 my-2">
+          <li>
+            <a href="index.html" class="text-blue-500 hover:underline"
+              >Homepage</a
+            >
+          </li>
+          <li>
+            <a href="agents.html" class="text-blue-500 hover:underline"
+              >Agent</a
+            >
+          </li>
+          <li>
+            <a href="weapons.html" class="text-blue-500 hover:underline"
+              >Weapons</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section
+        id="maps-container"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4"
+      ></section>
+    </main>
+    <script type="module" src="./src/map.js"></script>
+    <div
+      id="map-modal"
+      class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center hidden"
+    >
+      <div
+        id="modal-content-wrapper"
+        class="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative transform scale-95 opacity-0 transition-all duration-200"
+      >
+        <button
+          id="close-modal"
+          class="absolute top-2 right-2 text-gray-500 hover:text-black text-xl font-bold"
+        >
+          &times;
+        </button>
+
+        <div id="modal-content" class="text-center"></div>
+      </div>
+    </div>
   </body>
 </html>
