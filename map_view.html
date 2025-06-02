@@ -25,6 +25,71 @@
     </div>
 
     <script>
+      const MAP_POINTS = {
+        // UUID de Abyss, à compléter pour les autres maps
+        "224b0a95-48b9-f703-1bd8-67aca101a61f": [
+          { game: { x: 5700, y: -375 }, pixel: { x: 955, y: 80 } }, // Bridge
+          { game: { x: -4975, y: 2150 }, pixel: { x: 1379, y: 1851 } }, // B Nest
+          { game: { x: 1700, y: -325 }, pixel: { x: 960, y: 745 } }, // A Vent
+        ],
+        "2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba": [
+          // B Elbow
+          { game: { x: 11212.901, y: -7095.3335 }, pixel: { x: 333, y: 618 } },
+          // A Exit
+          { game: { x: 7550.4106, y: 5874.497 }, pixel: { x: 1792, y: 1053 } },
+          // A Site
+          { game: { x: 10747.902, y: 2664.4436 }, pixel: { x: 1466, y: 685 } },
+        ],
+        "2fb9a4fd-47b8-4e7d-a969-74b4046ebd53": [
+          { game: { x: 8650, y: 275 }, pixel: { x: 847, y: 461 } },
+          { game: { x: -575, y: -450 }, pixel: { x: 878, y: 1710 } },
+          { game: { x: 8900, y: 3525 }, pixel: { x: 1174, y: 289 } },
+        ],
+
+        // Tu ajoutes d'autres maps ici au fur et à mesure (UUID : [ ...3 points... ])
+      };
+
+      // Fonctions d’algebre pour 3 points <=> transformation affine 2D
+      function computeAffineTransform(gamePts, pixelPts) {
+        // Résout l'équation A*X = B où X est la matrice de transformation
+        // https://fr.wikipedia.org/wiki/Transformation_affine
+        // On résout pour a, b, c, d, e, f dans :
+        // x' = a*x + b*y + c ; y' = d*x + e*y + f
+
+        const [[x0, y0], [x1, y1], [x2, y2]] = gamePts;
+        const [[u0, v0], [u1, v1], [u2, v2]] = pixelPts;
+
+        // Système linéaire pour trouver les coeffs
+        // (On aurait pu utiliser une lib, mais ici c'est fait à la main pour 3 points)
+        const det = x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1);
+        if (det === 0) throw "Points alignés (pas possible)";
+
+        const a = (u0 * (y1 - y2) + u1 * (y2 - y0) + u2 * (y0 - y1)) / det;
+        const b = (u0 * (x2 - x1) + u1 * (x0 - x2) + u2 * (x1 - x0)) / det;
+        const c =
+          (u0 * (x1 * y2 - x2 * y1) +
+            u1 * (x2 * y0 - x0 * y2) +
+            u2 * (x0 * y1 - x1 * y0)) /
+          det;
+
+        const d = (v0 * (y1 - y2) + v1 * (y2 - y0) + v2 * (y0 - y1)) / det;
+        const e = (v0 * (x2 - x1) + v1 * (x0 - x2) + v2 * (x1 - x0)) / det;
+        const f =
+          (v0 * (x1 * y2 - x2 * y1) +
+            v1 * (x2 * y0 - x0 * y2) +
+            v2 * (x0 * y1 - x1 * y0)) /
+          det;
+
+        // Renvoie la fonction de conversion
+        return function (gameX, gameY) {
+          return {
+            x: a * gameX + b * gameY + c,
+            y: d * gameX + e * gameY + f,
+          };
+        };
+      }
+
+      // MAIN
       const params = new URLSearchParams(window.location.search);
       const uuid = params.get("uuid");
 
@@ -50,40 +115,61 @@
             mapImg.src = map.displayIcon;
 
             mapImg.addEventListener("load", () => {
+              calloutContainer.innerHTML = ""; // clear
               if (!Array.isArray(map.callouts) || map.callouts.length === 0) {
                 console.warn("Pas de callouts trouvés pour cette carte.");
                 return;
               }
 
-              // Étape 1 : récupérer les bornes x/y
-              const xs = map.callouts.map((c) => c.location.x);
-              const ys = map.callouts.map((c) => c.location.y);
-              const minX = Math.min(...xs);
-              const maxX = Math.max(...xs);
-              const minY = Math.min(...ys);
-              const maxY = Math.max(...ys);
+              // Nouvelle méthode si mapping dispo
+              const mapping = MAP_POINTS[uuid];
+              if (mapping) {
+                const gamePts = mapping.map((p) => [p.game.x, p.game.y]);
+                const pixelPts = mapping.map((p) => [p.pixel.x, p.pixel.y]);
+                const gameToPixel = computeAffineTransform(gamePts, pixelPts);
 
-              // Étape 2 : convertir les coordonnées en pourcentages
-              map.callouts.forEach(({ regionName, location }) => {
-                const { x, y } = location;
+                // Ajuste à la taille réelle affichée de l'image
+                const scaleX = mapImg.width / mapImg.naturalWidth;
+                const scaleY = mapImg.height / mapImg.naturalHeight;
 
-                const percentX = ((x - minX) / (maxX - minX)) * 100;
-                const percentY = 100 - ((y - minY) / (maxY - minY)) * 100;
+                map.callouts.forEach(({ regionName, location }) => {
+                  const { x, y } = location;
+                  const pos = gameToPixel(x, y);
+                  const pixelX = pos.x * scaleX;
+                  const pixelY = pos.y * scaleY;
 
-                console.log(
-                  regionName,
-                  percentX.toFixed(2),
-                  percentY.toFixed(2)
-                );
+                  const div = document.createElement("div");
+                  div.className =
+                    "absolute bg-red-600 text-white text-xs font-bold px-1 py-[1px] rounded transform -translate-x-1/2 -translate-y-1/2";
+                  div.style.left = `${pixelX}px`;
+                  div.style.top = `${pixelY}px`;
+                  div.textContent = regionName;
+                  calloutContainer.appendChild(div);
+                });
+              } else {
+                // Fallback min/max
+                const xs = map.callouts.map((c) => c.location.x);
+                const ys = map.callouts.map((c) => c.location.y);
+                const minX = Math.min(...xs);
+                const maxX = Math.max(...xs);
+                const minY = Math.min(...ys);
+                const maxY = Math.max(...ys);
 
-                const div = document.createElement("div");
-                div.className =
-                  "absolute bg-red-600 text-white text-xs font-bold px-1 py-[1px] rounded transform -translate-x-1/2 -translate-y-1/2";
-                div.style.left = `${percentX}%`;
-                div.style.top = `${percentY}%`;
-                div.textContent = regionName;
-                calloutContainer.appendChild(div);
-              });
+                map.callouts.forEach(({ regionName, location }) => {
+                  const { x, y } = location;
+
+                  const percentX = ((x - minX) / (maxX - minX)) * 100;
+                  const percentY = 100 - ((y - minY) / (maxY - minY)) * 100;
+
+                  const div = document.createElement("div");
+                  div.className =
+                    "absolute bg-red-600 text-white text-xs font-bold px-1 py-[1px] rounded transform -translate-x-1/2 -translate-y-1/2";
+                  div.style.left = `${percentX}%`;
+                  div.style.top = `${percentY}%`;
+                  div.textContent = regionName;
+                  calloutContainer.appendChild(div);
+                });
+              }
             });
           });
       }
