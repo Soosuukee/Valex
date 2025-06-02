@@ -81,7 +81,7 @@ function openModal(map) {
   const btn = document.createElement("button");
   btn.textContent = "Voir +";
   btn.className = "bg-blue-600 text-white px-4 py-2 rounded mb-4";
-  btn.addEventListener("click", () => window.open(`map_view.html?uuid=${map.uuid}`, "_blank"));
+  btn.addEventListener("click", () => showCallouts(map, content));
 
   content.append(mapname, splash, btn);
   modal.classList.remove("hidden");

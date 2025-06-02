@@ -1,9 +1,24 @@
 
 import { fetchMaps } from './fetch.js';
+import { fetchAgents } from './fetch.js';
 
 const UNRANKED_MAPS = ["Abyss","Bind","Breeze","Fracture"];
 const PRACTICE_MAPS = "/Game/Maps/PovegliaV2/RangeV2";
 const EXCLUDED_MAPS=["/Game/Maps/Poveglia/Range","/Game/Maps/NPEV2/NPEV2"];
+
+const COMPOSITIONS_PER_MAP = {
+  Ascent:   ["Jett", "Sova", "Killjoy", "Omen", "KAY/O"],
+  Bind:     ["Raze", "Skye", "Gekko", "Brimstone", "Viper"],
+  Breeze:   ["Jett", "Sova", "Yoru", "Viper", "Astra"],
+  Fracture: ["Neon", "Brimstone", "Breach", "Tejo", "Cypher"],
+  Haven:    ["Jett", "Tejo", "Cypher", "Omen", "Breach"],
+  Icebox:   ["Neon", "Sova", "Gekko", "Killjoy", "Viper"],
+  Lotus:    ["Raze", "Omen", "Fade", "Viper", "Vyse"],
+  Pearl:    ["Yoru", "Fade", "Vyse", "Astra", "Tejo"],
+  Split:    ["Yoru", "Tejo", "Breach", "Omen", "Viper"],
+  Sunset:   ["Raze", "Omen", "KAY/O", "Cypher", "Sova"],
+  Abyss:    ["Jett", "Omen", "Astra", "Sova", "KAY/O"]
+};
 
 function getMapType(map) {
   if (EXCLUDED_MAPS.includes(map.mapUrl)) return "excluded";
@@ -31,6 +46,7 @@ async function setRandomMapBackground() {
 
 function renderMaps(maps) {
   const container = document.getElementById("maps-container");
+
   const sections = {
     ranked: createSection("Ranked"),
     unranked: createSection("Unranked"),
@@ -74,58 +90,22 @@ function openModal(map) {
   mapname.textContent = map.displayName;
   mapname.className = "text-xl font-bold mb-2";
 
-  const splash = document.createElement("img");
-  splash.src = map.splash;
-  splash.className = "mx-auto w-48 mb-4";
+  const mapimg = document.createElement("img");
+  mapimg.src = map.splash;
+  mapimg.alt = map.displayName;
+  mapimg.className = "mx-auto w-48 mb-4";
 
-  const btn = document.createElement("button");
-  btn.textContent = "Voir +";
-  btn.className = "bg-blue-600 text-white px-4 py-2 rounded mb-4";
-  btn.addEventListener("click", () => window.open(`map_view.html?uuid=${map.uuid}`, "_blank"));
+  const voirPlus = document.createElement("button");
+  voirPlus.textContent = "Voir +";
+  voirPlus.className = "bg-blue-600 text-white px-4 py-2 rounded";
+  voirPlus.addEventListener("click", () => {
+    window.open(`map_view.html?uuid=${map.uuid}`, "_blank");
+  });
 
-  content.append(mapname, splash, btn);
+  content.append(mapname, mapimg, voirPlus);
   modal.classList.remove("hidden");
   wrapper.classList.remove("scale-95", "opacity-0");
   wrapper.classList.add("scale-100", "opacity-100");
-}
-
-function showCallouts(map, container) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "relative w-full mt-4";
-
-  const mapImg = document.createElement("img");
-  mapImg.src = map.displayIcon;
-  mapImg.id = "mapImage";
-  mapImg.className = "w-full h-auto rounded";
-
-  const calloutWrapper = document.createElement("div");
-  calloutWrapper.className = "absolute top-0 left-0 w-full h-full pointer-events-none";
-  calloutWrapper.id = "calloutWrapper";
-
-  wrapper.append(mapImg, calloutWrapper);
-  container.append(wrapper);
-
-  mapImg.onload = () => {
-    const width = mapImg.naturalWidth;
-    const height = mapImg.naturalHeight;
-
-    map.callouts?.forEach(({ regionName, location }) => {
-      const { x, y } = location;
-
-      const absX = (x * 0.01087) + (y * 0.15203) + 1656.93;
-      const absY = (x * -0.14403) + (y * 0.00653) + 1200.73;
-
-      const percentX = (absX / width) * 100;
-      const percentY = (absY / height) * 100;
-
-      const div = document.createElement("div");
-      div.className = "absolute bg-red-600 text-white text-xs font-bold px-1 py-[1px] rounded transform -translate-x-1/2 -translate-y-1/2";
-      div.style.left = `${percentX}%`;
-      div.style.top = `${percentY}%`;
-      div.textContent = regionName;
-      calloutWrapper.appendChild(div);
-    });
-  };
 }
 
 function createSection(title) {
