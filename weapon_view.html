@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./dist/output.css" rel="stylesheet" />
+    <title>Weapon Viewer</title>
+  </head>
+  <body>
+    <header class="p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h1 class="text-3xl font-bold text-red-500">Skin page</h1>
+        <input
+          type="button"
+          value="Back to weapons"
+          onclick="window.location.href='weapons.html'"
+          class="bg-blue-500 text-black px-4 py-2 rounded hover:bg-blue-600 cursor-pointer"
+        />
+      </div>
+
+      <nav>
+        <ul class="flex gap-4">
+          <li>
+            <a href="index.html" class="text-blue-500 hover:underline"
+              >Homepage</a
+            >
+          </li>
+          <li>
+            <a href="agents.html" class="text-blue-500 hover:underline"
+              >Agent</a
+            >
+          </li>
+          <li>
+            <a href="maps.html" class="text-blue-500 hover:underline">Maps</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <div class="p-4">
+        <label for="tier-filter" class="mr-2 font-semibold"
+          >Filtrer par tier :</label
+        >
+        <select id="tier-filter" class="border rounded px-2 py-1">
+          <option value="">Tous</option>
+          <option value="12683d76-48d7-84a3-4e09-6985794f0445">Select</option>
+          <option value="0cebb8be-46d7-c12a-d306-e9907bfc5a25">Deluxe</option>
+          <option value="60bca009-4182-7998-dee7-b8a2558dc369">Premium</option>
+          <option value="e046854e-406c-37f4-6607-19a9ba8426fc">
+            Exclusive
+          </option>
+          <option value="411e4a55-4e59-7757-41f0-86a53f101bb5">Ultra</option>
+        </select>
+      </div>
+
+      <section
+        id="skins-container"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4"
+      ></section>
+    </main>
+    <script type="module" src="./src/weaponviewer.js"></script>
+  </body>
+</html>
