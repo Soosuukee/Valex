@@ -60,5 +60,25 @@
       ></section>
     </main>
     <script type="module" src="./src/weaponviewer.js"></script>
+    <div
+      id="skin-modal"
+      class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
+    >
+      <div
+        id="modal-content-wrapper"
+        class="bg-white rounded-lg p-4 w-[90%] max-w-2xl max-h-[80vh] overflow-hidden relative transform scale-95 opacity-0 transition-all duration-200"
+      >
+        <button
+          id="close-modal"
+          class="absolute top-2 right-2 text-gray-500 hover:text-black text-xl font-bold"
+        >
+          &times;
+        </button>
+
+        <div id="skin-modal-content" class="text-center">
+          <div id="skin-modal-container" class="mt-4 overflow-hidden"></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
