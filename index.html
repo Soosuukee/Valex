@@ -6,40 +6,47 @@
     <link href="./dist/output.css" rel="stylesheet" />
     <title>Welcome to Valex</title>
   </head>
-  <body>
-    <h1 class="text-3xl font-bold text-red-500">Hello Tailwind</h1>
-    <nav class="bg-gray-900 text-white p-4 shadow-md">
-      <ul class="flex gap-6">
-        <li>
-          <a
-            href="agents.html"
-            target="_blank"
-            class="hover:text-red-500 transition-colors duration-200"
-            >Agents</a
-          >
-        </li>
-        <li>
-          <a
-            href="maps.html"
-            target="_blank"
-            class="hover:text-red-500 transition-colors duration-200"
-            >Maps</a
-          >
-        </li>
-        <li>
-          <a
-            href="weapons.html"
-            target="_blank"
-            class="hover:text-red-500 transition-colors duration-200"
-            >Weapons</a
-          >
-        </li>
-      </ul>
-    </nav>
-    <div class="bg-green-500 text-white p-4 text-center">
-      TAILWIND EST ACTIF ✅
-    </div>
-    <div id="test-opacity" class="bg-red-500 bg-opacity-50 w-32 h-10"></div>
+  <body class="bg-gray-900 text-white min-h-screen">
+    <header class="p-6">
+      <h1 class="text-3xl font-bold text-red-500 text-center">
+        Welcome to Valex
+      </h1>
+    </header>
+
+    <main>
+      <section
+        id="valex-content"
+        class="flex flex-wrap gap-6 justify-center items-start p-4"
+      >
+        <!-- AGENT -->
+        <div
+          id="agent-content"
+          class="relative w-[300px] h-[300px] rounded-md overflow-hidden border-4 border-red-500/40 bg-center bg-cover shadow-md text-white flex items-end justify-center"
+        >
+          <div class="absolute inset-0 bg-black/40 z-10"></div>
+          <h2 class="relative z-20 text-lg font-semibold">Agents</h2>
+        </div>
+
+        <!-- MAP -->
+        <div
+          id="map-content"
+          class="relative w-[300px] h-[300px] rounded-md overflow-hidden border-4 border-red-500/40 bg-center bg-cover shadow-md text-white flex items-end justify-center"
+        >
+          <div class="absolute inset-0 bg-black/40 z-10"></div>
+          <h2 class="relative z-20 text-lg font-semibold">Maps</h2>
+        </div>
+
+        <!-- WEAPON -->
+        <div
+          id="weapon-content"
+          class="relative w-[300px] h-[300px] rounded-md overflow-hidden border-4 border-red-500/40 bg-center bg-cover shadow-md text-white flex items-end justify-center"
+        >
+          <div class="absolute inset-0 bg-black/40 z-10"></div>
+          <h2 class="relative z-20 text-lg font-semibold">Weapons</h2>
+        </div>
+      </section>
+    </main>
+
     <script type="module" src="./src/app.js"></script>
   </body>
 </html>
