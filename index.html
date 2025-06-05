@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="./dist/output.css" rel="stylesheet" />
-    <title>Welcome to Valex</title>
+    <title>Valex Home</title>
   </head>
   <body class="bg-gray-900 text-white min-h-screen">
     <header class="p-6">
-      <h1 class="text-3xl font-bold text-red-500 text-center">
+      <h1 class="text-4xl font-extrabold text-red-500 text-center">
         Welcome to Valex
       </h1>
     </header>
@@ -16,34 +16,31 @@
     <main>
       <section
         id="valex-content"
-        class="flex flex-wrap gap-6 justify-center items-start p-4"
+        class="w-full flex flex-wrap justify-center gap-8 px-8 py-12"
       >
-        <!-- AGENT -->
-        <div
+        <a
           id="agent-content"
-          class="relative w-[300px] h-[300px] rounded-md overflow-hidden border-4 border-red-500/40 bg-center bg-cover shadow-md text-white flex items-end justify-center"
+          href="agents.html"
+          class="relative w-[400px] h-[250px] rounded-xl overflow-hidden shadow-xl bg-cover bg-center flex items-center justify-center text-white"
         >
-          <div class="absolute inset-0 bg-black/40 z-10"></div>
-          <h2 class="relative z-20 text-lg font-semibold">Agents</h2>
-        </div>
+          <!-- contenu JS ici -->
+        </a>
 
-        <!-- MAP -->
-        <div
+        <a
           id="map-content"
-          class="relative w-[300px] h-[300px] rounded-md overflow-hidden border-4 border-red-500/40 bg-center bg-cover shadow-md text-white flex items-end justify-center"
+          href="maps.html"
+          class="relative w-[400px] h-[250px] rounded-xl overflow-hidden shadow-xl bg-cover bg-center flex items-center justify-center text-white"
         >
-          <div class="absolute inset-0 bg-black/40 z-10"></div>
-          <h2 class="relative z-20 text-lg font-semibold">Maps</h2>
-        </div>
+          <!-- contenu JS ici -->
+        </a>
 
-        <!-- WEAPON -->
-        <div
+        <a
           id="weapon-content"
-          class="relative w-[300px] h-[300px] rounded-md overflow-hidden border-4 border-red-500/40 bg-center bg-cover shadow-md text-white flex items-end justify-center"
+          href="weapons.html"
+          class="relative w-[400px] h-[250px] rounded-xl overflow-hidden shadow-xl bg-cover bg-center flex items-center justify-center text-white"
         >
-          <div class="absolute inset-0 bg-black/40 z-10"></div>
-          <h2 class="relative z-20 text-lg font-semibold">Weapons</h2>
-        </div>
+          <!-- contenu JS ici -->
+        </a>
       </section>
     </main>
 

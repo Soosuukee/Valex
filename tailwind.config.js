@@ -2,8 +2,12 @@
 module.exports = {
   content: ["./*.html", "./src/**/*.js"],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        valex: "url('/valexbackground.png')",
+        //           ↑ pas de point, car on part de la racine du serveur
+      },
+    },
   },
   plugins: [],
-}
-
+};

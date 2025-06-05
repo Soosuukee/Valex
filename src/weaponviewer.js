@@ -56,7 +56,6 @@ function renderSkins(weapons, filterTier = "") {
     mainimg.alt = skin.displayName;
     mainimg.style.width = "150px";
 
-    // Vidéo par défaut (chroma[0] si dispo sinon level fallback)
     let currentVideoUrl =
       skin.chromas?.[0]?.streamedVideo ||
       skin.levels
@@ -65,15 +64,28 @@ function renderSkins(weapons, filterTier = "") {
         .find((l) => l.streamedVideo)?.streamedVideo;
     mainimg.dataset.videoUrl = currentVideoUrl || "";
 
-    card.append(name, mainimg);
-
-    // ▶️ Clic sur l'image principale = lire la vidéo du chroma sélectionné ou fallback
-    mainimg.addEventListener("click", () => {
+    // Double clic = jouer la vidéo
+    mainimg.addEventListener("dblclick", () => {
       const videoUrl = mainimg.dataset.videoUrl;
       if (videoUrl) {
         openVideoModal(videoUrl);
       }
     });
+
+    // Hover prolongé = montrer wallpaper si dispo
+    let hoverTimeout;
+    mainimg.addEventListener("mouseenter", () => {
+      if (skin.wallpaper) {
+        hoverTimeout = setTimeout(() => {
+          openImageModal(skin.wallpaper, mainimg.src);
+        }, 2000);
+      }
+    });
+    mainimg.addEventListener("mouseleave", () => {
+      clearTimeout(hoverTimeout);
+    });
+
+    card.append(name, mainimg);
 
     // 🎨 Chromas
     if (skin.chromas?.length > 1) {
@@ -130,6 +142,28 @@ function openVideoModal(videoUrl) {
   video.className = "w-full h-auto max-h-[60vh] rounded object-contain";
 
   videoContainer.appendChild(video);
+  showModal();
+}
+
+function openImageModal(bgUrl, imgUrl) {
+  videoContainer.innerHTML = "";
+
+  const container = document.createElement("div");
+  container.className =
+    "w-full h-auto max-h-[60vh] bg-cover bg-center rounded flex justify-center items-center";
+  container.style.backgroundImage = `url(${bgUrl})`;
+
+  const weaponImg = document.createElement("img");
+  weaponImg.src = imgUrl;
+  weaponImg.alt = "Weapon Preview";
+  weaponImg.className = "max-h-[40vh] object-contain";
+
+  container.appendChild(weaponImg);
+  videoContainer.appendChild(container);
+  showModal();
+}
+
+function showModal() {
   modal.classList.remove("hidden");
   wrapper.classList.remove("scale-95", "opacity-0");
   wrapper.classList.add("scale-100", "opacity-100");
@@ -138,24 +172,14 @@ function openVideoModal(videoUrl) {
 document.getElementById("close-modal").addEventListener("click", () => {
   const video = videoContainer.querySelector("video");
   if (video) video.pause();
-  wrapper.classList.remove("scale-100", "opacity-100");
-  wrapper.classList.add("scale-95", "opacity-0");
-  setTimeout(() => {
-    modal.classList.add("hidden");
-    videoContainer.innerHTML = "";
-  }, 200);
+  closeModal();
 });
 
 modal.addEventListener("click", (e) => {
   if (e.target.id === "skin-modal") {
     const video = videoContainer.querySelector("video");
     if (video) video.pause();
-    wrapper.classList.remove("scale-100", "opacity-100");
-    wrapper.classList.add("scale-95", "opacity-0");
-    setTimeout(() => {
-      modal.classList.add("hidden");
-      videoContainer.innerHTML = "";
-    }, 200);
+    closeModal();
   }
 });
 
@@ -163,15 +187,9 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     const video = videoContainer.querySelector("video");
     if (video) video.pause();
-    wrapper.classList.remove("scale-100", "opacity-100");
-    wrapper.classList.add("scale-95", "opacity-0");
-    setTimeout(() => {
-      modal.classList.add("hidden");
-      videoContainer.innerHTML = "";
-    }, 200);
+    closeModal();
   }
 
-  // Plein écran avec F
   if (e.key.toLowerCase() === "f") {
     const video = videoContainer.querySelector("video");
     if (video && video.requestFullscreen) {
@@ -179,5 +197,14 @@ document.addEventListener("keydown", (e) => {
     }
   }
 });
+
+function closeModal() {
+  wrapper.classList.remove("scale-100", "opacity-100");
+  wrapper.classList.add("scale-95", "opacity-0");
+  setTimeout(() => {
+    modal.classList.add("hidden");
+    videoContainer.innerHTML = "";
+  }, 200);
+}
 
 init();
