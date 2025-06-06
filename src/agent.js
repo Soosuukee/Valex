@@ -45,7 +45,7 @@ function renderAgents(agents) {
   filtered.forEach((agent) => {
     const card = document.createElement("div");
     card.className =
-      "relative overflow-hidden rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
+      "w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg relative overflow-hidden rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
 
     const gradient = `linear-gradient(to bottom right, ${agent.backgroundGradientColors
       .map((c) => `#${c}`)
@@ -57,7 +57,8 @@ function renderAgents(agents) {
     name.className = "text-white font-semibold mb-2 z-30";
 
     const imgWrapper = document.createElement("div");
-    imgWrapper.className = "relative w-[150px] h-[200px]";
+    imgWrapper.className =
+      "relative w-[120px] h-[160px] sm:w-[150px] sm:h-[200px]";
 
     const displayImg = document.createElement("img");
     displayImg.src = agent.displayIcon;
@@ -118,10 +119,10 @@ function openModal(agent) {
 
   const layout = document.createElement("div");
   layout.className =
-    "grid grid-cols-3 gap-6 items-start bg-white bg-opacity-90 p-6 rounded-lg";
+    "flex flex-col md:grid md:grid-cols-3 gap-6 items-start bg-white bg-opacity-90 p-4 rounded-lg";
 
   const leftCol = document.createElement("div");
-  leftCol.className = "col-span-1 flex flex-col items-center";
+  leftCol.className = "md:col-span-1 flex flex-col items-center";
 
   const roleimg = document.createElement("img");
   if (agent.role) {
@@ -137,17 +138,19 @@ function openModal(agent) {
   const agentdescription = document.createElement("p");
   agentdescription.textContent =
     agent.description || "Pas de description disponible.";
-  agentdescription.className = "text-sm text-gray-700 mt-4 text-justify";
+  agentdescription.className =
+    "text-sm text-gray-700 mt-4 px-2 md:px-0 text-justify";
 
   leftCol.append(roleimg, agentrole, agentdescription);
 
   const rightCol = document.createElement("div");
-  rightCol.className = "col-span-2 flex flex-col items-center";
+  rightCol.className = "md:col-span-2 flex flex-col items-center";
 
   const agentimg = document.createElement("img");
   agentimg.src = agent.fullPortrait;
   agentimg.alt = agent.displayName;
-  agentimg.className = "max-h-[700px] object-contain mb-2";
+  agentimg.className =
+    "w-full max-w-[300px] md:max-w-[500px] object-contain mb-2";
 
   const agentnameunderimg = document.createElement("h3");
   agentnameunderimg.textContent = agent.displayName;

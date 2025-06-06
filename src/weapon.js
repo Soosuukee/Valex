@@ -53,13 +53,14 @@ function renderWeapons(weapons) {
   filtered.forEach((weapon) => {
     const card = document.createElement("div");
     card.className =
-      "rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
+      "w-full max-w-xs sm:max-w-sm md:max-w-md rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
 
     const name = document.createElement("p");
     name.textContent = weapon.displayName;
 
     const img = document.createElement("img");
     img.src = weapon.displayIcon;
+    img.className = "w-32 h-auto mb-2";
     img.alt = name;
     img.style.width = "150px";
 

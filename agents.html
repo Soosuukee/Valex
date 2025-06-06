@@ -19,20 +19,20 @@
     </div>
 
     <!-- 🧠 Header -->
-    <header>
+    <header class="p-4 text-center">
       <h1 class="text-3xl font-bold text-red-500">Welcome to the agent page</h1>
       <nav>
-        <ul class="flex gap-4 my-2">
+        <ul class="flex flex-wrap justify-center gap-4 my-2">
           <li>
-            <a href="index.html" class="text-blue-500 hover:underline"
+            <a href="index.html" class="text-blue-400 hover:underline"
               >Homepage</a
             >
           </li>
           <li>
-            <a href="maps.html" class="text-blue-500 hover:underline">Maps</a>
+            <a href="maps.html" class="text-blue-400 hover:underline">Maps</a>
           </li>
           <li>
-            <a href="weapons.html" class="text-blue-500 hover:underline"
+            <a href="weapons.html" class="text-blue-400 hover:underline"
               >Weapons</a
             >
           </li>
@@ -41,8 +41,8 @@
     </header>
 
     <!-- 🔍 Filters -->
-    <main>
-      <div id="filters" class="mb-6">
+    <main class="px-4">
+      <div id="filters" class="mb-6 text-center">
         <label for="role-filter" class="mr-2 font-semibold text-white"
           >Filter by role:</label
         >
@@ -54,7 +54,7 @@
       <!-- 🧩 Cards -->
       <section
         id="agents-container"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 mx-auto max-w-screen-xl place-items-center"
       ></section>
     </main>
 

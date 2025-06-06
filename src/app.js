@@ -27,7 +27,7 @@ async function loadRandomImages() {
 
   const card_agent = document.getElementById("agent-content");
   card_agent.innerHTML = "";
-  card_agent.classList.add("relative", "overflow-hidden");
+  card_agent.classList.add("relative", "overflow-hidden", "rounded-lg");
 
   const gradientLayer = document.createElement("div");
   gradientLayer.className = "absolute inset-0 z-0";
@@ -44,23 +44,29 @@ async function loadRandomImages() {
   const bust = document.createElement("img");
   bust.src = randomAgent.fullPortrait;
   bust.alt = randomAgent.displayName;
-  bust.className = "relative z-20 h-full object-contain mx-auto";
+  bust.className =
+    "relative z-20 max-h-[300px] w-auto object-contain mx-auto my-4";
   card_agent.appendChild(bust);
 
   const title = document.createElement("h2");
   title.textContent = "Agents";
   title.className =
-    "absolute bottom-2 left-2 z-30 bg-black/60 px-3 py-1 rounded text-lg font-semibold text-white";
+    "absolute bottom-2 left-2 z-30 bg-black/60 px-3 py-1 rounded text-base md:text-lg font-semibold text-white";
   card_agent.appendChild(title);
 
   // === MAP ===
   const map = rand(maps.data.filter((m) => m.tacticalDescription?.trim()));
   const card_map = document.getElementById("map-content");
+  card_map.innerHTML = "";
+  card_map.classList.add("relative", "overflow-hidden", "rounded-lg");
   card_map.style.backgroundImage = `url(${map.splash})`;
+  card_map.style.backgroundSize = "cover";
+  card_map.style.backgroundPosition = "center";
+
   const mapTitle = document.createElement("h2");
   mapTitle.textContent = "Maps";
   mapTitle.className =
-    "absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded font-bold";
+    "absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded text-base md:text-lg font-bold text-white";
   card_map.append(mapTitle);
 
   // === WEAPON ===
@@ -75,18 +81,18 @@ async function loadRandomImages() {
 
   const card_weapon = document.getElementById("weapon-content");
   card_weapon.innerHTML = "";
-  card_weapon.classList.add("relative", "overflow-hidden");
+  card_weapon.classList.add("relative", "overflow-hidden", "rounded-lg");
 
   const weaponImg = document.createElement("img");
   weaponImg.src = randomSkin.fullRender;
   weaponImg.alt = "Weapon";
-  weaponImg.className = "absolute inset-0 object-contain w-full h-full z-10";
+  weaponImg.className = "absolute inset-0 w-full h-full object-contain z-10";
   card_weapon.appendChild(weaponImg);
 
   const weaponTitle = document.createElement("h2");
   weaponTitle.textContent = "Weapons";
   weaponTitle.className =
-    "absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded font-bold z-20";
+    "absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded text-base md:text-lg font-bold z-20 text-white";
   card_weapon.appendChild(weaponTitle);
 }
 
