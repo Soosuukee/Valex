@@ -16,7 +16,6 @@ async function loadRandomImages() {
   const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   // === AGENT ===
-  // === AGENT ===
   const playableAgents = agents.data.filter(
     (a) =>
       a.isPlayableCharacter &&
@@ -28,38 +27,26 @@ async function loadRandomImages() {
 
   const card_agent = document.getElementById("agent-content");
   card_agent.innerHTML = "";
-  card_agent.classList.add(
-    "relative",
-    "overflow-hidden",
-    "rounded-xl",
-    "shadow-xl"
-  );
+  card_agent.classList.add("relative", "overflow-hidden");
 
-  // === 1. Gradient de fond (tout derrière)
   const gradientLayer = document.createElement("div");
   gradientLayer.className = "absolute inset-0 z-0";
   gradientLayer.style.background = `linear-gradient(to bottom right, #${randomAgent.backgroundGradientColors[0]}, #${randomAgent.backgroundGradientColors[1]}, #${randomAgent.backgroundGradientColors[2]}, #${randomAgent.backgroundGradientColors[3]})`;
-
   card_agent.appendChild(gradientLayer);
 
-  // === 2. Background image
   const backgroundImg = document.createElement("img");
   backgroundImg.src = randomAgent.background;
   backgroundImg.alt = "Agent background";
   backgroundImg.className =
     "absolute inset-0 w-full h-full object-cover z-10 opacity-60";
-
   card_agent.appendChild(backgroundImg);
 
-  // === 3. Full portrait
   const bust = document.createElement("img");
   bust.src = randomAgent.fullPortrait;
   bust.alt = randomAgent.displayName;
   bust.className = "relative z-20 h-full object-contain mx-auto";
-
   card_agent.appendChild(bust);
 
-  // === Titre
   const title = document.createElement("h2");
   title.textContent = "Agents";
   title.className =
@@ -87,12 +74,20 @@ async function loadRandomImages() {
   const randomSkin = rand(skins);
 
   const card_weapon = document.getElementById("weapon-content");
-  card_weapon.style.backgroundImage = `url(${randomSkin.fullRender})`;
+  card_weapon.innerHTML = "";
+  card_weapon.classList.add("relative", "overflow-hidden");
+
+  const weaponImg = document.createElement("img");
+  weaponImg.src = randomSkin.fullRender;
+  weaponImg.alt = "Weapon";
+  weaponImg.className = "absolute inset-0 object-contain w-full h-full z-10";
+  card_weapon.appendChild(weaponImg);
+
   const weaponTitle = document.createElement("h2");
   weaponTitle.textContent = "Weapons";
   weaponTitle.className =
-    "absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded font-bold";
-  card_weapon.append(weaponTitle);
+    "absolute bottom-2 left-2 bg-black/60 px-3 py-1 rounded font-bold z-20";
+  card_weapon.appendChild(weaponTitle);
 }
 
 loadRandomImages();

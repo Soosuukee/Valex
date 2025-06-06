@@ -30,14 +30,26 @@
         </ul>
       </nav>
     </header>
+
     <main>
-      <div id="filters" class="mb-6">
-        <label for="role-filter" class="mr-2 font-semibold"
-          >Filtrer par categories :</label
-        >
-        <select id="role-filter" class="border px-2 py-1 rounded">
-          <option value="All">Tous</option>
-        </select>
+      <div id="filters" class="mb-6 flex flex-wrap gap-4 items-center">
+        <div>
+          <label for="role-filter" class="mr-2 font-semibold"
+            >Filter per category:</label
+          >
+          <select id="role-filter" class="border px-2 py-1 rounded">
+            <option value="All">All</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="sort-select" class="mr-2 font-semibold">Sort by:</label>
+          <select id="sort-select" class="border px-2 py-1 rounded">
+            <option value="">None</option>
+            <option value="price">Price</option>
+            <option value="hs">Headshot Damage</option>
+          </select>
+        </div>
       </div>
 
       <section
@@ -45,7 +57,9 @@
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4"
       ></section>
     </main>
+
     <script type="module" src="./src/weapon.js"></script>
+
     <div
       id="weapon-modal"
       class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center hidden"
@@ -60,7 +74,6 @@
         >
           &times;
         </button>
-
         <div id="modal-content" class="text-center"></div>
       </div>
     </div>

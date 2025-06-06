@@ -12,9 +12,13 @@ function getWeaponFromURL() {
 }
 
 async function init() {
-  const response = await fetchWeapons();
-  weapons = response.data;
-  renderSkins(weapons);
+  try {
+    const response = await fetchWeapons();
+    weapons = response.data;
+    renderSkins(weapons);
+  } catch (err) {
+    console.error("Failed to load weapons:", err);
+  }
 }
 
 document.getElementById("tier-filter").addEventListener("change", (e) => {
@@ -33,6 +37,7 @@ function renderSkins(weapons, filterTier = "") {
       ...skin,
       weaponName: weapon.displayName,
       fallbackIcon: weapon.displayIcon,
+      wallpaper: skin.wallpaper || weapon.wallpaper,
     }))
   );
 
@@ -44,17 +49,34 @@ function renderSkins(weapons, filterTier = "") {
 
   filteredSkins.forEach((skin) => {
     const card = document.createElement("div");
-    card.className = "rounded-xl shadow p-4 flex flex-col items-center";
+    card.className = `
+      relative rounded-lg shadow-lg p-4 flex flex-col items-center
+      bg-black bg-opacity-80 text-white cursor-pointer transition-transform
+      hover:scale-105 duration-200 overflow-hidden
+    `;
+    card.style.aspectRatio = "16 / 9";
+    card.style.backgroundSize = "cover";
+    card.style.backgroundPosition = "center";
+
+    if (skin.wallpaper) {
+      card.style.backgroundImage = `url(${skin.wallpaper})`;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "absolute inset-0 bg-black bg-opacity-60 z-0";
+    card.appendChild(overlay);
 
     const name = document.createElement("p");
     name.textContent = skin.displayName;
+    name.className = "z-10 text-sm font-semibold mb-2";
 
     const mainimg = document.createElement("img");
     const defaultRender =
       skin.displayIcon || skin.chromas?.[0]?.fullRender || skin.fallbackIcon;
     mainimg.src = defaultRender;
     mainimg.alt = skin.displayName;
-    mainimg.style.width = "150px";
+    mainimg.style.width = "120px";
+    mainimg.className = "z-10";
 
     let currentVideoUrl =
       skin.chromas?.[0]?.streamedVideo ||
@@ -64,15 +86,11 @@ function renderSkins(weapons, filterTier = "") {
         .find((l) => l.streamedVideo)?.streamedVideo;
     mainimg.dataset.videoUrl = currentVideoUrl || "";
 
-    // Double clic = jouer la vidéo
     mainimg.addEventListener("dblclick", () => {
       const videoUrl = mainimg.dataset.videoUrl;
-      if (videoUrl) {
-        openVideoModal(videoUrl);
-      }
+      if (videoUrl) openVideoModal(videoUrl);
     });
 
-    // Hover prolongé = montrer wallpaper si dispo
     let hoverTimeout;
     mainimg.addEventListener("mouseenter", () => {
       if (skin.wallpaper) {
@@ -81,16 +99,14 @@ function renderSkins(weapons, filterTier = "") {
         }, 2000);
       }
     });
-    mainimg.addEventListener("mouseleave", () => {
-      clearTimeout(hoverTimeout);
-    });
+    mainimg.addEventListener("mouseleave", () => clearTimeout(hoverTimeout));
 
     card.append(name, mainimg);
 
     // 🎨 Chromas
     if (skin.chromas?.length > 1) {
       const chromaContainer = document.createElement("div");
-      chromaContainer.className = "flex flex-wrap gap-1 mt-2";
+      chromaContainer.className = "flex flex-wrap gap-1 mt-2 z-10";
 
       skin.chromas.forEach((chroma, index) => {
         if (!chroma.fullRender) return;
@@ -134,13 +150,11 @@ function renderSkins(weapons, filterTier = "") {
 
 function openVideoModal(videoUrl) {
   videoContainer.innerHTML = "";
-
   const video = document.createElement("video");
   video.src = videoUrl;
   video.controls = true;
   video.autoplay = true;
   video.className = "w-full h-auto max-h-[60vh] rounded object-contain";
-
   videoContainer.appendChild(video);
   showModal();
 }

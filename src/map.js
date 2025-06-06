@@ -19,6 +19,22 @@ const COMPOSITIONS_PER_MAP = {
   Abyss: ["Jett", "Omen", "Astra", "Sova", "KAY/O"],
 };
 
+const REAL_LOCATIONS = {
+  Ascent: ["45°26′12″N, 12°20′26″E", "Venice, Italy"],
+  Bind: ["33°30′0″N, 7°35′0″W", "Casablanca, Morocco"],
+  Breeze: ["25°3′0″N, 77°21′0″W", "Bahamas"],
+  Fracture: ["35°12′0″N, 106°39′0″W", "New Mexico, USA"],
+  Haven: ["27°41′0″N, 85°19′0″E", "Bhaktapur, Nepal"],
+  Icebox: ["73°0′0″N, 140°0′0″E", "Siberian Arctic"],
+  Lotus: ["11°56′0″N, 75°53′0″E", "Western Ghats, India"],
+  Pearl: ["38°43′0″N, 9°9′0″W", "Lisbon, Portugal"],
+  Split: ["35°41′22″N, 139°41′30″E", "Tokyo, Japan"],
+  Sunset: ["34°3′0″N, 118°15′0″W", "Los Angeles, USA"],
+  Abyss: ["20°34′0″N, 142°11′0″E", "Mariana Trench"],
+};
+
+let allAgents = [];
+
 function getMapType(map) {
   if (EXCLUDED_MAPS.includes(map.mapUrl)) return "excluded";
   if (PRACTICE_MAPS.includes(map.mapUrl)) return "range";
@@ -42,23 +58,23 @@ async function setRandomMapBackground() {
     document.body.style.backgroundPosition = "center";
     document.body.style.backgroundRepeat = "no-repeat";
   } catch (error) {
-    console.error("Erreur lors de la récupération des cartes :", error);
+    console.error("Erreur lors de la récupération du fond :", error);
   }
 }
 
-function renderMaps(maps) {
+async function renderMaps(maps) {
   const container = document.getElementById("maps-container");
 
   const sections = {
-    ranked: createSection("Ranked"),
+    ranked: createSection("Ranked Map pool"),
     unranked: createSection("Unranked"),
-    tdm: createSection("TDM"),
+    tdm: createSection("Team Deathmatch"),
     range: createSection("Practice"),
   };
 
-  maps.forEach((map) => {
+  for (const map of maps) {
     const type = getMapType(map);
-    if (type === "excluded") return;
+    if (type === "excluded") continue;
 
     const section = sections[type];
     const card = document.createElement("div");
@@ -75,14 +91,17 @@ function renderMaps(maps) {
     img.className = "w-full rounded-md shadow-lg";
 
     card.append(name, img);
-    card.addEventListener("click", () => openModal(map));
+    card.addEventListener("click", async () => {
+      await openModal(map);
+    });
+
     section._grid.appendChild(card);
-  });
+  }
 
   Object.values(sections).forEach((section) => container.appendChild(section));
 }
 
-function openModal(map) {
+async function openModal(map) {
   const modal = document.getElementById("map-modal");
   const content = document.getElementById("modal-content");
   const wrapper = document.getElementById("modal-content-wrapper");
@@ -91,32 +110,68 @@ function openModal(map) {
 
   const mapname = document.createElement("h4");
   mapname.textContent = map.displayName;
-  mapname.className = "text-xl font-bold mb-2";
+  mapname.className = "text-xl font-bold mb-4";
 
   const mapimg = document.createElement("img");
   mapimg.src = map.splash;
   mapimg.alt = map.displayName;
-  mapimg.className = "mx-auto w-48 mb-4";
+  mapimg.className = "mx-auto w-full rounded mb-4";
 
-  const voirPlus = document.createElement("button");
-  voirPlus.textContent = "Voir +";
-  voirPlus.className = "bg-blue-600 text-white px-4 py-2 rounded";
-  voirPlus.addEventListener("click", () => {
+  content.append(mapname, mapimg);
+
+  if (REAL_LOCATIONS[map.displayName]) {
+    const [coords, city] = REAL_LOCATIONS[map.displayName];
+    const coordText = document.createElement("p");
+    coordText.textContent = coords;
+    coordText.className = "text-sm text-black text-center font-mono";
+
+    const cityText = document.createElement("p");
+    cityText.textContent = city;
+    cityText.className = "italic font-bold text-center text-gray-700 mb-4";
+
+    content.append(coordText, cityText);
+  }
+
+  const seeMore = document.createElement("button");
+  seeMore.textContent = "See callouts";
+  seeMore.className = "bg-blue-600 text-white px-4 py-2 rounded mb-4";
+  seeMore.addEventListener("click", () => {
     window.open(`map_view.html?uuid=${map.uuid}`, "_blank");
   });
+  content.appendChild(seeMore);
 
-  content.append(mapname, mapimg, voirPlus);
+  if (map.tacticalDescription && COMPOSITIONS_PER_MAP[map.displayName]) {
+    const compTitle = document.createElement("h5");
+    compTitle.textContent = "Recommended composition:";
+    compTitle.className = "font-semibold text-black mt-4 mb-2 text-center";
+    content.appendChild(compTitle);
+
+    const agentContainer = document.createElement("div");
+    agentContainer.className = "flex justify-center gap-3 flex-wrap";
+
+    const agents = COMPOSITIONS_PER_MAP[map.displayName];
+    agents.forEach((name) => {
+      const agent = allAgents.find((a) => a.displayName === name);
+      if (!agent || !agent.displayIcon) return;
+
+      const icon = document.createElement("img");
+      icon.src = agent.displayIcon;
+      icon.alt = agent.displayName;
+      icon.title = agent.displayName;
+      icon.className = "w-12 h-12 object-contain rounded-full border";
+      agentContainer.appendChild(icon);
+    });
+
+    content.appendChild(agentContainer);
+  }
+
   modal.classList.remove("hidden");
   wrapper.classList.remove("scale-95", "opacity-0");
   wrapper.classList.add("scale-100", "opacity-100");
 
   document.getElementById("close-modal").addEventListener("click", () => {
-    const modal = document.getElementById("map-modal");
-    const wrapper = document.getElementById("modal-content-wrapper");
-
     wrapper.classList.remove("scale-100", "opacity-100");
     wrapper.classList.add("scale-95", "opacity-0");
-
     setTimeout(() => {
       modal.classList.add("hidden");
     }, 200);
@@ -149,9 +204,9 @@ function createSection(title) {
 
 async function init() {
   await setRandomMapBackground();
-  const response = await fetchMaps();
-  const maps = response.data;
-  renderMaps(maps);
+  const [mapRes, agentRes] = await Promise.all([fetchMaps(), fetchAgents()]);
+  allAgents = agentRes.data.filter((a) => a.isPlayableCharacter);
+  await renderMaps(mapRes.data);
 }
 
 window.addEventListener("load", init);
