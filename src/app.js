@@ -1,5 +1,51 @@
 import { fetchAgents, fetchMaps, fetchWeapons } from "./fetch.js";
 
+const LANGUAGES = {
+  "en-US": "🇬🇧",
+  "fr-FR": "🇫🇷",
+  "es-ES": "🇪🇸",
+  "de-DE": "🇩🇪",
+  "pt-BR": "🇧🇷",
+  "ru-RU": "🇷🇺",
+  "ja-JP": "🇯🇵",
+  "ko-KR": "🇰🇷",
+  "zh-CN": "🇨🇳",
+  "zh-TW": "🇹🇼",
+  "ar-AE": "🇦🇪",
+  "es-MX": "🇲🇽",
+  "id-ID": "🇮🇩",
+  "it-IT": "🇮🇹",
+  "pl-PL": "🇵🇱",
+  "th-TH": "🇹🇭",
+  "tr-TR": "🇹🇷",
+  "vi-VN": "🇻🇳",
+};
+
+let selectedLanguage = localStorage.getItem("language") || "en-US";
+
+// === Ajout des boutons langue ===
+const header = document.querySelector("header");
+const langContainer = document.createElement("div");
+langContainer.id = "lang-switcher";
+langContainer.className = "flex flex-wrap justify-center gap-2 mt-4";
+
+Object.entries(LANGUAGES).forEach(([code, flag]) => {
+  const btn = document.createElement("button");
+  btn.textContent = flag;
+  btn.title = code;
+  btn.className = "text-2xl hover:scale-110 transition-transform";
+  btn.addEventListener("click", () => {
+    selectedLanguage = code;
+    localStorage.setItem("language", code);
+    location.reload(); // Recharge pour tout appliquer
+  });
+  langContainer.appendChild(btn);
+});
+
+header.appendChild(langContainer);
+
+// === Affichage des contenus ===
+
 const allowedWeaponTiers = [
   "e046854e-406c-37f4-6607-19a9ba8426fc", // Premium
   "60bca009-4182-7998-dee7-b8a2558dc369", // Exclusive
@@ -8,9 +54,9 @@ const allowedWeaponTiers = [
 
 async function loadRandomImages() {
   const [agents, maps, weapons] = await Promise.all([
-    fetchAgents(),
-    fetchMaps(),
-    fetchWeapons(),
+    fetchAgents(selectedLanguage),
+    fetchMaps(selectedLanguage),
+    fetchWeapons(selectedLanguage),
   ]);
 
   const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];

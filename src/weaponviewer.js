@@ -1,5 +1,44 @@
 import { fetchWeapons } from "./fetch.js";
 
+const LANGUAGES = {
+  "en-US": "🇬🇧",
+  "fr-FR": "🇫🇷",
+  "es-ES": "🇪🇸",
+  "de-DE": "🇩🇪",
+  "pt-BR": "🇧🇷",
+  "ru-RU": "🇷🇺",
+  "ja-JP": "🇯🇵",
+  "ko-KR": "🇰🇷",
+  "zh-CN": "🇨🇳",
+  "zh-TW": "🇹🇼",
+  "ar-AE": "🇦🇪",
+  "es-MX": "🇲🇽",
+  "id-ID": "🇮🇩",
+  "it-IT": "🇮🇹",
+  "pl-PL": "🇵🇱",
+  "th-TH": "🇹🇭",
+  "tr-TR": "🇹🇷",
+  "vi-VN": "🇻🇳",
+};
+
+let selectedLanguage = localStorage.getItem("language") || "en-US";
+
+const switcher = document.getElementById("lang-switcher");
+if (switcher) {
+  Object.entries(LANGUAGES).forEach(([code, flag]) => {
+    const btn = document.createElement("button");
+    btn.textContent = flag;
+    btn.title = code;
+    btn.className = "text-2xl hover:scale-110 transition-transform";
+    btn.addEventListener("click", () => {
+      selectedLanguage = code;
+      localStorage.setItem("language", code);
+      init();
+    });
+    switcher.appendChild(btn);
+  });
+}
+
 let weapons = [];
 
 const modal = document.getElementById("skin-modal");
@@ -13,7 +52,7 @@ function getWeaponFromURL() {
 
 async function init() {
   try {
-    const response = await fetchWeapons();
+    const response = await fetchWeapons(selectedLanguage);
     weapons = response.data;
     renderSkins(weapons);
   } catch (err) {
@@ -42,6 +81,13 @@ function renderSkins(weapons, filterTier = "") {
   );
 
   const filteredSkins = allSkins.filter((skin) => {
+    // ❌ Écarter "Standard" (ex: "Vandal") et "Random Favorite Skin"
+    if (
+      skin.displayName === skin.weaponName ||
+      skin.displayName === "Random Favorite Skin"
+    ) {
+      return false;
+    }
     if (!skin.contentTierUuid) return false;
     if (weaponFilter && skin.weaponName !== weaponFilter) return false;
     return !filterTier || skin.contentTierUuid === filterTier;
@@ -50,11 +96,11 @@ function renderSkins(weapons, filterTier = "") {
   filteredSkins.forEach((skin) => {
     const card = document.createElement("div");
     card.className = `
-  w-full max-w-xs sm:max-w-sm md:max-w-md 
-  relative rounded-lg shadow-lg p-4 flex flex-col items-center
-  bg-black bg-opacity-80 text-white cursor-pointer transition-transform
-  hover:scale-105 duration-200 overflow-hidden
-`;
+      w-full max-w-xs sm:max-w-sm md:max-w-md 
+      relative rounded-lg shadow-lg p-4 flex flex-col items-center
+      bg-black bg-opacity-80 text-white cursor-pointer transition-transform
+      hover:scale-105 duration-200 overflow-hidden
+    `;
     card.style.aspectRatio = "16 / 9";
     card.style.backgroundSize = "cover";
     card.style.backgroundPosition = "center";

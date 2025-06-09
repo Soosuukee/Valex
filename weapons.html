@@ -8,10 +8,14 @@
   </head>
 
   <body class="bg-valex bg-cover bg-center text-white min-h-screen">
-    <header>
-      <h1 class="text-3xl font-bold text-red-500">
-        Welcome to the Weapon page
-      </h1>
+    <header class="p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h1 class="text-3xl font-bold text-red-500">
+          Welcome to the Weapon page
+        </h1>
+        <div id="lang-switcher" class="flex gap-2 text-xl"></div>
+      </div>
+
       <nav>
         <ul class="flex gap-4 my-2">
           <li>
@@ -32,6 +36,16 @@
     </header>
 
     <main>
+      <section id="favorites-section" class="mb-8 hidden">
+        <h2 class="text-2xl font-bold text-yellow-400 mb-4">
+          ⭐ Favorite weapons
+        </h2>
+        <div
+          id="favorites-container"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
+        ></div>
+      </section>
+
       <div id="filters" class="mb-6 flex flex-wrap gap-4 items-center">
         <div>
           <label for="role-filter" class="mr-2 font-semibold"

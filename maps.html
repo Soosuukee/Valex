@@ -31,6 +31,18 @@
       </nav>
     </header>
     <main>
+      <section id="favorites-section" class="mb-8 hidden">
+        <h2 class="text-2xl font-bold text-yellow-400 mb-4">
+          ⭐ Favorite maps
+        </h2>
+        <div
+          id="favorites-container"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
+        >
+          <!-- favorite cards will be injected here -->
+        </div>
+      </section>
+
       <section id="maps-container" class="gp-6 space-y-16"></section>
     </main>
     <script type="module" src="./src/map.js"></script>

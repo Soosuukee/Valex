@@ -1,5 +1,45 @@
 import { fetchMaps } from "./fetch.js";
 import { fetchAgents } from "./fetch.js";
+import { isFavorite, toggleFavorite } from "./favorites.js";
+
+const LANGUAGES = {
+  "en-US": "🇬🇧",
+  "fr-FR": "🇫🇷",
+  "es-ES": "🇪🇸",
+  "de-DE": "🇩🇪",
+  "pt-BR": "🇧🇷",
+  "ru-RU": "🇷🇺",
+  "ja-JP": "🇯🇵",
+  "ko-KR": "🇰🇷",
+  "zh-CN": "🇨🇳",
+  "zh-TW": "🇹🇼",
+  "ar-AE": "🇦🇪",
+  "es-MX": "🇲🇽",
+  "id-ID": "🇮🇩",
+  "it-IT": "🇮🇹",
+  "pl-PL": "🇵🇱",
+  "th-TH": "🇹🇭",
+  "tr-TR": "🇹🇷",
+  "vi-VN": "🇻🇳",
+};
+
+let selectedLanguage = localStorage.getItem("language") || "en-US";
+
+const switcher = document.getElementById("lang-switcher");
+if (switcher) {
+  Object.entries(LANGUAGES).forEach(([code, flag]) => {
+    const btn = document.createElement("button");
+    btn.textContent = flag;
+    btn.title = code;
+    btn.className = "text-2xl hover:scale-110 transition-transform";
+    btn.addEventListener("click", () => {
+      selectedLanguage = code;
+      localStorage.setItem("language", code);
+      init();
+    });
+    switcher.appendChild(btn);
+  });
+}
 
 const UNRANKED_MAPS = ["Abyss", "Bind", "Breeze", "Fracture"];
 const PRACTICE_MAPS = "/Game/Maps/PovegliaV2/RangeV2";
@@ -50,7 +90,6 @@ async function setRandomMapBackground() {
       (map) => map.tacticalDescription !== null
     );
     if (playableMaps.length === 0) return;
-
     const randomMap =
       playableMaps[Math.floor(Math.random() * playableMaps.length)];
     document.body.style.backgroundImage = `url(${randomMap.stylizedBackgroundImage})`;
@@ -64,6 +103,26 @@ async function setRandomMapBackground() {
 
 async function renderMaps(maps) {
   const container = document.getElementById("maps-container");
+  container.innerHTML = "";
+
+  const favContainer = document.createElement("section");
+  favContainer.className = "mb-12";
+  const favHeading = document.createElement("h2");
+  favHeading.textContent = "⭐ Favorite Maps";
+  favHeading.className = "text-3xl font-bold text-yellow-400 text-center mb-6";
+  const favGrid = document.createElement("div");
+  favGrid.className =
+    "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center";
+
+  maps
+    .filter((map) => isFavorite("maps", map.displayName))
+    .forEach((map) => favGrid.appendChild(createMapCard(map)));
+
+  if (favGrid.children.length > 0) {
+    favContainer.appendChild(favHeading);
+    favContainer.appendChild(favGrid);
+    container.appendChild(favContainer);
+  }
 
   const sections = {
     ranked: createSection("Ranked Map pool"),
@@ -75,30 +134,43 @@ async function renderMaps(maps) {
   for (const map of maps) {
     const type = getMapType(map);
     if (type === "excluded") continue;
-
     const section = sections[type];
-    const card = document.createElement("div");
-    card.className =
-      "bg-black/40 backdrop-blur-md rounded-2xl shadow-xl p-4 my-4 w-64 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300";
-
-    const name = document.createElement("h3");
-    name.textContent = map.displayName;
-    name.className = "text-xl font-semibold mb-4 text-white";
-
-    const img = document.createElement("img");
-    img.src = map.listViewIcon || map.displayIcon || "";
-    img.alt = map.displayName;
-    img.className = "w-full rounded-md shadow-lg";
-
-    card.append(name, img);
-    card.addEventListener("click", async () => {
-      await openModal(map);
-    });
-
-    section._grid.appendChild(card);
+    section._grid.appendChild(createMapCard(map));
   }
 
   Object.values(sections).forEach((section) => container.appendChild(section));
+}
+
+function createMapCard(map) {
+  const card = document.createElement("div");
+  card.className =
+    "relative bg-black/40 backdrop-blur-md rounded-2xl shadow-xl p-4 my-4 w-64 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300";
+
+  const name = document.createElement("h3");
+  name.textContent = map.displayName;
+  name.className = "text-xl font-semibold mb-4 text-white";
+
+  const img = document.createElement("img");
+  img.src = map.listViewIcon || map.displayIcon || "";
+  img.alt = map.displayName;
+  img.className = "w-full rounded-md shadow-lg";
+
+  const favBtn = document.createElement("button");
+  favBtn.textContent = isFavorite("maps", map.displayName) ? "★" : "☆";
+  favBtn.className = "absolute top-2 right-2 text-yellow-400 text-xl z-10";
+  favBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFavorite("maps", map.displayName);
+    favBtn.textContent = isFavorite("maps", map.displayName) ? "★" : "☆";
+    renderMaps(JSON.parse(localStorage.getItem("valex_maps_cache")));
+  });
+
+  card.append(name, img, favBtn);
+  card.addEventListener("click", async () => {
+    await openModal(map);
+  });
+
+  return card;
 }
 
 async function openModal(map) {
@@ -204,7 +276,11 @@ function createSection(title) {
 
 async function init() {
   await setRandomMapBackground();
-  const [mapRes, agentRes] = await Promise.all([fetchMaps(), fetchAgents()]);
+  const [mapRes, agentRes] = await Promise.all([
+    fetchMaps(selectedLanguage),
+    fetchAgents(selectedLanguage),
+  ]);
+  localStorage.setItem("valex_maps_cache", JSON.stringify(mapRes.data));
   allAgents = agentRes.data.filter((a) => a.isPlayableCharacter);
   await renderMaps(mapRes.data);
 }

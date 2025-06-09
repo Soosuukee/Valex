@@ -1,11 +1,52 @@
 import { fetchWeapons } from "./fetch.js";
+import { isFavorite, toggleFavorite, getFavorites } from "./favorites.js";
 
 let allWeapons = [];
 
+const LANGUAGES = {
+  "en-US": "🇬🇧",
+  "fr-FR": "🇫🇷",
+  "es-ES": "🇪🇸",
+  "de-DE": "🇩🇪",
+  "pt-BR": "🇧🇷",
+  "ru-RU": "🇷🇺",
+  "ja-JP": "🇯🇵",
+  "ko-KR": "🇰🇷",
+  "zh-CN": "🇨🇳",
+  "zh-TW": "🇹🇼",
+  "ar-AE": "🇦🇪",
+  "es-MX": "🇲🇽",
+  "id-ID": "🇮🇩",
+  "it-IT": "🇮🇹",
+  "pl-PL": "🇵🇱",
+  "th-TH": "🇹🇭",
+  "tr-TR": "🇹🇷",
+  "vi-VN": "🇻🇳",
+};
+
+let selectedLanguage = localStorage.getItem("language") || "en-US";
+
+const switcher = document.getElementById("lang-switcher");
+if (switcher) {
+  Object.entries(LANGUAGES).forEach(([code, flag]) => {
+    const btn = document.createElement("button");
+    btn.textContent = flag;
+    btn.title = code;
+    btn.className = "text-2xl hover:scale-110 transition-transform";
+    btn.addEventListener("click", () => {
+      selectedLanguage = code;
+      localStorage.setItem("language", code);
+      init();
+    });
+    switcher.appendChild(btn);
+  });
+}
+
 async function init() {
-  const response = await fetchWeapons();
+  const response = await fetchWeapons(selectedLanguage);
   allWeapons = response.data;
   populateCategoryFilter(allWeapons);
+  renderFavoriteWeapons(allWeapons);
   renderWeapons(allWeapons);
 }
 
@@ -23,10 +64,34 @@ function populateCategoryFilter(weapons) {
     select.appendChild(option);
   });
 
-  select.addEventListener("change", () => renderWeapons(allWeapons));
+  select.addEventListener("change", () => {
+    renderWeapons(allWeapons);
+  });
+
   document
     .getElementById("sort-select")
     .addEventListener("change", () => renderWeapons(allWeapons));
+}
+
+function renderFavoriteWeapons(weapons) {
+  const favContainer = document.getElementById("favorites-container");
+  favContainer.innerHTML = "";
+
+  const favWeapons = weapons.filter((w) =>
+    isFavorite("weapons", w.displayName)
+  );
+
+  if (favWeapons.length === 0) {
+    document.getElementById("favorites-section").classList.add("hidden");
+    return;
+  }
+
+  document.getElementById("favorites-section").classList.remove("hidden");
+
+  favWeapons.forEach((weapon) => {
+    const card = createWeaponCard(weapon);
+    favContainer.appendChild(card);
+  });
 }
 
 function renderWeapons(weapons) {
@@ -51,24 +116,39 @@ function renderWeapons(weapons) {
   }
 
   filtered.forEach((weapon) => {
-    const card = document.createElement("div");
-    card.className =
-      "w-full max-w-xs sm:max-w-sm md:max-w-md rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
-
-    const name = document.createElement("p");
-    name.textContent = weapon.displayName;
-
-    const img = document.createElement("img");
-    img.src = weapon.displayIcon;
-    img.className = "w-32 h-auto mb-2";
-    img.alt = name;
-    img.style.width = "150px";
-
-    card.append(name, img);
-    card.addEventListener("click", () => openModal(weapon));
-
+    const card = createWeaponCard(weapon);
     container.appendChild(card);
   });
+}
+
+function createWeaponCard(weapon) {
+  const card = document.createElement("div");
+  card.className =
+    "w-full max-w-xs sm:max-w-sm md:max-w-md rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
+
+  const name = document.createElement("p");
+  name.textContent = weapon.displayName;
+
+  const img = document.createElement("img");
+  img.src = weapon.displayIcon;
+  img.className = "w-32 h-auto mb-2";
+  img.alt = name;
+  img.style.width = "150px";
+
+  const favBtn = document.createElement("button");
+  favBtn.textContent = isFavorite("weapons", weapon.displayName) ? "★" : "☆";
+  favBtn.className = "absolute top-2 right-2 text-yellow-400 text-xl z-10";
+  favBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFavorite("weapons", weapon.displayName);
+    favBtn.textContent = isFavorite("weapons", weapon.displayName) ? "★" : "☆";
+    renderFavoriteWeapons(allWeapons);
+  });
+
+  card.append(name, img, favBtn);
+  card.addEventListener("click", () => openModal(weapon));
+
+  return card;
 }
 
 function openModal(weapon) {
@@ -104,7 +184,6 @@ function openModal(weapon) {
     weapon.weaponStats?.wallPenetration?.split("::")[1] || "Unknown";
   wallPen.textContent = `🧱 Wall Penetration: ${penetration}`;
 
-  // 📈 Damage Ranges
   const damageWrapper = document.createElement("div");
   damageWrapper.className = "mt-4";
 
@@ -122,7 +201,6 @@ function openModal(weapon) {
     damageWrapper.appendChild(p);
   });
 
-  // 🔗 View Skins
   const viewSkinsBtn = document.createElement("a");
   viewSkinsBtn.href = `weapon_view.html?weapon=${encodeURIComponent(
     weapon.displayName
@@ -131,7 +209,6 @@ function openModal(weapon) {
   viewSkinsBtn.className =
     "mt-4 bg-black text-white px-4 py-2 rounded hover:bg-gray-800 inline-block";
 
-  // 📦 Append all
   content.append(
     weaponname,
     weaponimg,
@@ -142,12 +219,10 @@ function openModal(weapon) {
     viewSkinsBtn
   );
 
-  // 🎬 Show modal
   modal.classList.remove("hidden");
   wrapper.classList.remove("scale-95", "opacity-0");
   wrapper.classList.add("scale-100", "opacity-100");
 
-  // ❌ Close logic
   document.getElementById("close-modal").addEventListener("click", () => {
     wrapper.classList.remove("scale-100", "opacity-100");
     wrapper.classList.add("scale-95", "opacity-0");

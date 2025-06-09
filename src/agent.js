@@ -1,12 +1,53 @@
 import { fetchAgents } from "./fetch.js";
+import { isFavorite, toggleFavorite, getFavorites } from "./favorites.js";
+
+const LANGUAGES = {
+  "en-US": "🇬🇧",
+  "fr-FR": "🇫🇷",
+  "es-ES": "🇪🇸",
+  "de-DE": "🇩🇪",
+  "pt-BR": "🇧🇷",
+  "ru-RU": "🇷🇺",
+  "ja-JP": "🇯🇵",
+  "ko-KR": "🇰🇷",
+  "zh-CN": "🇨🇳",
+  "zh-TW": "🇹🇼",
+  "ar-AE": "🇦🇪",
+  "es-MX": "🇲🇽",
+  "id-ID": "🇮🇩",
+  "it-IT": "🇮🇹",
+  "pl-PL": "🇵🇱",
+  "th-TH": "🇹🇭",
+  "tr-TR": "🇹🇷",
+  "vi-VN": "🇻🇳",
+};
+
+let selectedLanguage = localStorage.getItem("language") || "en-US";
+
+const switcher = document.getElementById("lang-switcher");
+if (switcher) {
+  Object.entries(LANGUAGES).forEach(([code, flag]) => {
+    const btn = document.createElement("button");
+    btn.textContent = flag;
+    btn.title = code;
+    btn.className = "text-2xl hover:scale-110 transition-transform";
+    btn.addEventListener("click", () => {
+      selectedLanguage = code;
+      localStorage.setItem("language", code);
+      init();
+    });
+    switcher.appendChild(btn);
+  });
+}
 
 let allAgents = [];
 
 async function init() {
   showLoader(true);
-  const response = await fetchAgents();
+  const response = await fetchAgents(selectedLanguage);
   allAgents = response.data.filter((a) => a.isPlayableCharacter);
   populateRoleFilter(allAgents);
+  renderFavoriteAgents(allAgents);
   renderAgents(allAgents);
   showLoader(false);
 }
@@ -30,7 +71,30 @@ function populateRoleFilter(agents) {
     select.appendChild(option);
   });
 
-  select.addEventListener("change", () => renderAgents(allAgents));
+  select.addEventListener("change", () => {
+    renderFavoriteAgents(allAgents);
+    renderAgents(allAgents);
+  });
+}
+
+function renderFavoriteAgents(agents) {
+  const favSection = document.getElementById("favorites-section");
+  const favContainer = document.getElementById("favorites-container");
+  favContainer.innerHTML = "";
+
+  const favorites = agents.filter((a) => isFavorite("agents", a.displayName));
+
+  if (favorites.length === 0) {
+    favSection.classList.add("hidden");
+    return;
+  }
+
+  favSection.classList.remove("hidden");
+
+  favorites.forEach((agent) => {
+    const card = createAgentCard(agent);
+    favContainer.appendChild(card);
+  });
 }
 
 function renderAgents(agents) {
@@ -43,60 +107,75 @@ function renderAgents(agents) {
   );
 
   filtered.forEach((agent) => {
-    const card = document.createElement("div");
-    card.className =
-      "w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg relative overflow-hidden rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
-
-    const gradient = `linear-gradient(to bottom right, ${agent.backgroundGradientColors
-      .map((c) => `#${c}`)
-      .join(", ")})`;
-    card.style.background = gradient;
-
-    const name = document.createElement("h3");
-    name.textContent = agent.displayName || "Unknown";
-    name.className = "text-white font-semibold mb-2 z-30";
-
-    const imgWrapper = document.createElement("div");
-    imgWrapper.className =
-      "relative w-[120px] h-[160px] sm:w-[150px] sm:h-[200px]";
-
-    const displayImg = document.createElement("img");
-    displayImg.src = agent.displayIcon;
-    displayImg.alt = agent.displayName;
-    displayImg.className =
-      "absolute inset-0 w-full h-full object-contain z-20 transition-opacity duration-300 opacity-100";
-
-    const backgroundOverlay = document.createElement("img");
-    backgroundOverlay.src = agent.background;
-    backgroundOverlay.alt = "Background";
-    backgroundOverlay.className =
-      "absolute inset-0 w-full h-full object-cover z-10 opacity-0 transition-opacity duration-300";
-
-    const portraitImg = document.createElement("img");
-    portraitImg.src =
-      agent.bustPortrait || agent.fullPortrait || agent.displayIcon;
-    portraitImg.alt = agent.displayName;
-    portraitImg.className =
-      "absolute inset-0 w-full h-full object-contain z-30 opacity-0 transition-opacity duration-300";
-
-    imgWrapper.addEventListener("mouseenter", () => {
-      displayImg.classList.replace("opacity-100", "opacity-0");
-      backgroundOverlay.classList.replace("opacity-0", "opacity-100");
-      portraitImg.classList.replace("opacity-0", "opacity-100");
-    });
-
-    imgWrapper.addEventListener("mouseleave", () => {
-      displayImg.classList.replace("opacity-0", "opacity-100");
-      backgroundOverlay.classList.replace("opacity-100", "opacity-0");
-      portraitImg.classList.replace("opacity-100", "opacity-0");
-    });
-
-    imgWrapper.append(backgroundOverlay, displayImg, portraitImg);
-    card.append(name, imgWrapper);
-    card.addEventListener("click", () => openModal(agent));
-
+    const card = createAgentCard(agent);
     container.appendChild(card);
   });
+}
+
+function createAgentCard(agent) {
+  const card = document.createElement("div");
+  card.className =
+    "w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg relative overflow-hidden rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
+
+  const gradient = `linear-gradient(to bottom right, ${agent.backgroundGradientColors
+    .map((c) => `#${c}`)
+    .join(", ")})`;
+  card.style.background = gradient;
+
+  const name = document.createElement("h3");
+  name.textContent = agent.displayName || "Unknown";
+  name.className = "text-white font-semibold mb-2 z-30";
+
+  const imgWrapper = document.createElement("div");
+  imgWrapper.className =
+    "relative w-[120px] h-[160px] sm:w-[150px] sm:h-[200px]";
+
+  const displayImg = document.createElement("img");
+  displayImg.src = agent.displayIcon;
+  displayImg.alt = agent.displayName;
+  displayImg.className =
+    "absolute inset-0 w-full h-full object-contain z-20 transition-opacity duration-300 opacity-100";
+
+  const backgroundOverlay = document.createElement("img");
+  backgroundOverlay.src = agent.background;
+  backgroundOverlay.alt = "Background";
+  backgroundOverlay.className =
+    "absolute inset-0 w-full h-full object-cover z-10 opacity-0 transition-opacity duration-300";
+
+  const portraitImg = document.createElement("img");
+  portraitImg.src =
+    agent.bustPortrait || agent.fullPortrait || agent.displayIcon;
+  portraitImg.alt = agent.displayName;
+  portraitImg.className =
+    "absolute inset-0 w-full h-full object-contain z-30 opacity-0 transition-opacity duration-300";
+
+  imgWrapper.addEventListener("mouseenter", () => {
+    displayImg.classList.replace("opacity-100", "opacity-0");
+    backgroundOverlay.classList.replace("opacity-0", "opacity-100");
+    portraitImg.classList.replace("opacity-0", "opacity-100");
+  });
+
+  imgWrapper.addEventListener("mouseleave", () => {
+    displayImg.classList.replace("opacity-0", "opacity-100");
+    backgroundOverlay.classList.replace("opacity-100", "opacity-0");
+    portraitImg.classList.replace("opacity-100", "opacity-0");
+  });
+
+  const favBtn = document.createElement("button");
+  favBtn.textContent = isFavorite("agents", agent.displayName) ? "★" : "☆";
+  favBtn.className = "absolute top-2 right-2 text-yellow-400 text-xl z-10";
+  favBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFavorite("agents", agent.displayName);
+    favBtn.textContent = isFavorite("agents", agent.displayName) ? "★" : "☆";
+    renderFavoriteAgents(allAgents); // Refresh top section
+  });
+
+  imgWrapper.append(backgroundOverlay, displayImg, portraitImg);
+  card.append(name, imgWrapper, favBtn);
+  card.addEventListener("click", () => openModal(agent));
+
+  return card;
 }
 
 function openModal(agent) {
