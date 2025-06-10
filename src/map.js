@@ -25,22 +25,6 @@ const LANGUAGES = {
 
 let selectedLanguage = localStorage.getItem("language") || "en-US";
 
-const switcher = document.getElementById("lang-switcher");
-if (switcher) {
-  Object.entries(LANGUAGES).forEach(([code, flag]) => {
-    const btn = document.createElement("button");
-    btn.textContent = flag;
-    btn.title = code;
-    btn.className = "text-2xl hover:scale-110 transition-transform";
-    btn.addEventListener("click", () => {
-      selectedLanguage = code;
-      localStorage.setItem("language", code);
-      init();
-    });
-    switcher.appendChild(btn);
-  });
-}
-
 const UNRANKED_MAPS = ["Abyss", "Bind", "Breeze", "Fracture"];
 const PRACTICE_MAPS = "/Game/Maps/PovegliaV2/RangeV2";
 const EXCLUDED_MAPS = ["/Game/Maps/Poveglia/Range", "/Game/Maps/NPEV2/NPEV2"];

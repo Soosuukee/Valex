@@ -26,22 +26,6 @@ const LANGUAGES = {
 
 let selectedLanguage = localStorage.getItem("language") || "en-US";
 
-const switcher = document.getElementById("lang-switcher");
-if (switcher) {
-  Object.entries(LANGUAGES).forEach(([code, flag]) => {
-    const btn = document.createElement("button");
-    btn.textContent = flag;
-    btn.title = code;
-    btn.className = "text-2xl hover:scale-110 transition-transform";
-    btn.addEventListener("click", () => {
-      selectedLanguage = code;
-      localStorage.setItem("language", code);
-      init();
-    });
-    switcher.appendChild(btn);
-  });
-}
-
 async function init() {
   const response = await fetchWeapons(selectedLanguage);
   allWeapons = response.data;
@@ -52,6 +36,7 @@ async function init() {
 
 function populateCategoryFilter(weapons) {
   const select = document.getElementById("role-filter");
+  select.style.color = "black";
   const categories = [
     ...new Set(weapons.map((w) => w.shopData?.category || "Unknown")),
   ];
@@ -61,6 +46,7 @@ function populateCategoryFilter(weapons) {
     const option = document.createElement("option");
     option.value = cat;
     option.textContent = cat;
+    option.style.color = "black";
     select.appendChild(option);
   });
 
@@ -98,12 +84,19 @@ function renderWeapons(weapons) {
   const container = document.getElementById("weapons-container");
   container.innerHTML = "";
 
-  const selectedCategory = document.getElementById("role-filter").value;
-  const sortOption = document.getElementById("sort-select").value;
+  const selectedCategory = document.getElementById("role-filter");
+  selectedCategory.style.color = "black";
+
+  const sortSelect = document.getElementById("sort-select");
+  sortSelect.style.color = "black";
+
+  const selectedCategoryValue = selectedCategory.value;
+  const sortOption = sortSelect.value;
 
   let filtered = weapons.filter(
     (w) =>
-      selectedCategory === "All" || w.shopData?.category === selectedCategory
+      selectedCategoryValue === "All" ||
+      w.shopData?.category === selectedCategoryValue
   );
 
   if (sortOption === "price") {

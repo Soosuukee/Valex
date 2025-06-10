@@ -23,22 +23,6 @@ const LANGUAGES = {
 
 let selectedLanguage = localStorage.getItem("language") || "en-US";
 
-const switcher = document.getElementById("lang-switcher");
-if (switcher) {
-  Object.entries(LANGUAGES).forEach(([code, flag]) => {
-    const btn = document.createElement("button");
-    btn.textContent = flag;
-    btn.title = code;
-    btn.className = "text-2xl hover:scale-110 transition-transform";
-    btn.addEventListener("click", () => {
-      selectedLanguage = code;
-      localStorage.setItem("language", code);
-      init();
-    });
-    switcher.appendChild(btn);
-  });
-}
-
 let weapons = [];
 
 const modal = document.getElementById("skin-modal");
@@ -81,7 +65,6 @@ function renderSkins(weapons, filterTier = "") {
   );
 
   const filteredSkins = allSkins.filter((skin) => {
-    // ❌ Écarter "Standard" (ex: "Vandal") et "Random Favorite Skin"
     if (
       skin.displayName === skin.weaponName ||
       skin.displayName === "Random Favorite Skin"
@@ -132,11 +115,19 @@ function renderSkins(weapons, filterTier = "") {
         .find((l) => l.streamedVideo)?.streamedVideo;
     mainimg.dataset.videoUrl = currentVideoUrl || "";
 
-    mainimg.addEventListener("dblclick", () => {
-      const videoUrl = mainimg.dataset.videoUrl;
-      if (videoUrl) openVideoModal(videoUrl);
-    });
+    // Video play button with emoji, only if video exists
+    if (currentVideoUrl) {
+      const playButton = document.createElement("span");
+      playButton.textContent = "▶️";
+      playButton.className = "video-play-button";
+      playButton.addEventListener("click", () => {
+        const videoUrl = mainimg.dataset.videoUrl;
+        if (videoUrl) openVideoModal(videoUrl);
+      });
+      card.appendChild(playButton);
+    }
 
+    // 🖱 Hover (desktop) for wallpaper
     let hoverTimeout;
     mainimg.addEventListener("mouseenter", () => {
       if (skin.wallpaper) {
@@ -146,6 +137,16 @@ function renderSkins(weapons, filterTier = "") {
       }
     });
     mainimg.addEventListener("mouseleave", () => clearTimeout(hoverTimeout));
+
+    // 📱 Long press for wallpaper (mobile)
+    mainimg.addEventListener("touchstart", () => {
+      if (skin.wallpaper) {
+        hoverTimeout = setTimeout(() => {
+          openImageModal(skin.wallpaper, mainimg.src);
+        }, 1200);
+      }
+    });
+    mainimg.addEventListener("touchend", () => clearTimeout(hoverTimeout));
 
     card.append(name, mainimg);
 
@@ -243,20 +244,23 @@ modal.addEventListener("click", (e) => {
   }
 });
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    const video = videoContainer.querySelector("video");
-    if (video) video.pause();
-    closeModal();
-  }
-
-  if (e.key.toLowerCase() === "f") {
-    const video = videoContainer.querySelector("video");
-    if (video && video.requestFullscreen) {
-      video.requestFullscreen();
+// 🎯 Desktop only: clavier (escape, fullscreen)
+if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const video = videoContainer.querySelector("video");
+      if (video) video.pause();
+      closeModal();
     }
-  }
-});
+
+    if (e.key.toLowerCase() === "f") {
+      const video = videoContainer.querySelector("video");
+      if (video && video.requestFullscreen) {
+        video.requestFullscreen();
+      }
+    }
+  });
+}
 
 function closeModal() {
   wrapper.classList.remove("scale-100", "opacity-100");

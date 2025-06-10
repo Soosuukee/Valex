@@ -1,47 +1,54 @@
 import { fetchAgents, fetchMaps, fetchWeapons } from "./fetch.js";
 
 const LANGUAGES = {
-  "en-US": "🇬🇧",
-  "fr-FR": "🇫🇷",
-  "es-ES": "🇪🇸",
-  "de-DE": "🇩🇪",
-  "pt-BR": "🇧🇷",
-  "ru-RU": "🇷🇺",
-  "ja-JP": "🇯🇵",
-  "ko-KR": "🇰🇷",
-  "zh-CN": "🇨🇳",
-  "zh-TW": "🇹🇼",
-  "ar-AE": "🇦🇪",
-  "es-MX": "🇲🇽",
-  "id-ID": "🇮🇩",
-  "it-IT": "🇮🇹",
-  "pl-PL": "🇵🇱",
-  "th-TH": "🇹🇭",
-  "tr-TR": "🇹🇷",
-  "vi-VN": "🇻🇳",
+  "en-US": "🇬🇧 English",
+  "fr-FR": "🇫🇷 Français",
+  "es-ES": "🇪🇸 Español (ES)",
+  "de-DE": "🇩🇪 Deutsch",
+  "pt-BR": "🇧🇷 Português (BR)",
+  "ru-RU": "🇷🇺 Русский",
+  "ja-JP": "🇯🇵 日本語",
+  "ko-KR": "🇰🇷 한국어",
+  "zh-CN": "🇨🇳 简体中文",
+  "zh-TW": "🇹🇼 繁體中文",
+  "ar-AE": "🇦🇪 العربية",
+  "es-MX": "🇲🇽 Español (MX)",
+  "id-ID": "🇮🇩 Bahasa Indonesia",
+  "it-IT": "🇮🇹 Italiano",
+  "pl-PL": "🇵🇱 Polski",
+  "th-TH": "🇹🇭 ไทย",
+  "tr-TR": "🇹🇷 Türkçe",
+  "vi-VN": "🇻🇳 Tiếng Việt",
 };
 
 let selectedLanguage = localStorage.getItem("language") || "en-US";
 
-// === Ajout des boutons langue ===
+// === Création du select langue ===
 const header = document.querySelector("header");
 const langContainer = document.createElement("div");
 langContainer.id = "lang-switcher";
-langContainer.className = "flex flex-wrap justify-center gap-2 mt-4";
+langContainer.className = "mt-4 flex justify-center";
 
-Object.entries(LANGUAGES).forEach(([code, flag]) => {
-  const btn = document.createElement("button");
-  btn.textContent = flag;
-  btn.title = code;
-  btn.className = "text-2xl hover:scale-110 transition-transform";
-  btn.addEventListener("click", () => {
-    selectedLanguage = code;
-    localStorage.setItem("language", code);
-    location.reload(); // Recharge pour tout appliquer
-  });
-  langContainer.appendChild(btn);
+const select = document.createElement("select");
+select.className =
+  "text-lg text-black p-2 rounded border border-gray-300 shadow";
+
+Object.entries(LANGUAGES).forEach(([code, label]) => {
+  const option = document.createElement("option");
+  option.value = code;
+  option.textContent = label;
+  option.style.color = "black";
+  if (code === selectedLanguage) option.selected = true;
+  select.appendChild(option);
 });
 
+select.addEventListener("change", () => {
+  const code = select.value;
+  localStorage.setItem("language", code);
+  location.reload();
+});
+
+langContainer.appendChild(select);
 header.appendChild(langContainer);
 
 // === Affichage des contenus ===
