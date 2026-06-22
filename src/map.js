@@ -71,7 +71,7 @@ async function setRandomMapBackground() {
     const response = await fetch("https://valorant-api.com/v1/maps");
     const data = await response.json();
     const playableMaps = data.data.filter(
-      (map) => map.tacticalDescription !== null
+      (map) => map.tacticalDescription !== null,
     );
     if (playableMaps.length === 0) return;
     const randomMap =
@@ -187,14 +187,6 @@ async function openModal(map) {
 
     content.append(coordText, cityText);
   }
-
-  const seeMore = document.createElement("button");
-  seeMore.textContent = "See callouts";
-  seeMore.className = "bg-blue-600 text-white px-4 py-2 rounded mb-4";
-  seeMore.addEventListener("click", () => {
-    window.open(`map_view.html?uuid=${map.uuid}`, "_blank");
-  });
-  content.appendChild(seeMore);
 
   if (map.tacticalDescription && COMPOSITIONS_PER_MAP[map.displayName]) {
     const compTitle = document.createElement("h5");
