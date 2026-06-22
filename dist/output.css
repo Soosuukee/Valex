@@ -1051,7 +1051,7 @@ video {
 }
 
 .bg-valex {
-  background-image: url('./valexbackground.png');
+  background-image: url('../valexbackground.png');
 }
 
 .bg-cover {
