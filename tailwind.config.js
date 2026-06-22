@@ -4,8 +4,7 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        valex: "url('/valexbackground.png')",
-        //           ↑ pas de point, car on part de la racine du serveur
+        valex: "url('./valexbackground.png')",
       },
     },
   },
