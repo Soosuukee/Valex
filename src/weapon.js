@@ -117,16 +117,16 @@ function renderWeapons(weapons) {
 function createWeaponCard(weapon) {
   const card = document.createElement("div");
   card.className =
-    "w-full max-w-xs sm:max-w-sm md:max-w-md rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200";
+    "relative w-full max-w-xs sm:max-w-sm md:max-w-md rounded-xl shadow-lg p-4 flex flex-col items-center text-center cursor-pointer hover:scale-105 transition-transform duration-200 bg-black/70 backdrop-blur-sm";
 
   const name = document.createElement("p");
   name.textContent = weapon.displayName;
+  name.className = "text-white font-semibold mb-3";
 
   const img = document.createElement("img");
-  img.src = weapon.displayIcon;
-  img.className = "w-32 h-auto mb-2";
-  img.alt = name;
-  img.style.width = "150px";
+  img.src = weapon.shopData?.newImage || weapon.displayIcon;
+  img.className = "w-48 h-24 object-contain mb-2";
+  img.alt = weapon.displayName;
 
   const favBtn = document.createElement("button");
   favBtn.textContent = isFavorite("weapons", weapon.displayName) ? "★" : "☆";
@@ -156,9 +156,9 @@ function openModal(weapon) {
   weaponname.className = "text-2xl font-bold mb-2 text-center text-black";
 
   const weaponimg = document.createElement("img");
-  weaponimg.src = weapon.displayIcon;
+  weaponimg.src = weapon.shopData?.newImage || weapon.displayIcon;
   weaponimg.alt = weapon.displayName;
-  weaponimg.className = "mx-auto w-48 mb-4";
+  weaponimg.className = "mx-auto w-56 h-28 object-contain mb-4";
 
   const weaponcategory = document.createElement("p");
   weaponcategory.className = "text-lg font-semibold text-black";

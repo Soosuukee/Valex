@@ -49,6 +49,10 @@ document.getElementById("tier-filter").addEventListener("change", (e) => {
   renderSkins(weapons, selectedTier);
 });
 
+const tierFilter = document.getElementById("tier-filter");
+tierFilter.style.color = "black";
+tierFilter.style.backgroundColor = "white";
+
 function renderSkins(weapons, filterTier = "") {
   const container = document.getElementById("skins-container");
   container.innerHTML = "";
