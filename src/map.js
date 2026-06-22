@@ -25,8 +25,6 @@ const LANGUAGES = {
 
 let selectedLanguage = localStorage.getItem("language") || "en-US";
 
-const UNRANKED_MAPS = ["Abyss", "Bind", "Breeze", "Fracture"];
-const PRACTICE_MAPS = "/Game/Maps/PovegliaV2/RangeV2";
 const EXCLUDED_MAPS = ["/Game/Maps/Poveglia/Range", "/Game/Maps/NPEV2/NPEV2"];
 
 const COMPOSITIONS_PER_MAP = {
@@ -41,6 +39,7 @@ const COMPOSITIONS_PER_MAP = {
   Split: ["Yoru", "Tejo", "Breach", "Omen", "Viper"],
   Sunset: ["Raze", "Omen", "KAY/O", "Cypher", "Sova"],
   Abyss: ["Jett", "Omen", "Astra", "Sova", "KAY/O"],
+  Corrode: ["Omen", "Viper", "Fade", "Neon", "Vyse"],
 };
 
 const REAL_LOCATIONS = {
@@ -55,16 +54,10 @@ const REAL_LOCATIONS = {
   Split: ["35°41′22″N, 139°41′30″E", "Tokyo, Japan"],
   Sunset: ["34°3′0″N, 118°15′0″W", "Los Angeles, USA"],
   Abyss: ["20°34′0″N, 142°11′0″E", "Mariana Trench"],
+  Corrode: ["48°38′0″N, 1°33′0″W", "Mount Saint Michel"],
 };
 
 let allAgents = [];
-
-function getMapType(map) {
-  if (EXCLUDED_MAPS.includes(map.mapUrl)) return "excluded";
-  if (PRACTICE_MAPS.includes(map.mapUrl)) return "range";
-  if (map.tacticalDescription === null) return "tdm";
-  return UNRANKED_MAPS.includes(map.displayName) ? "unranked" : "ranked";
-}
 
 async function setRandomMapBackground() {
   try {
@@ -108,21 +101,14 @@ async function renderMaps(maps) {
     container.appendChild(favContainer);
   }
 
-  const sections = {
-    ranked: createSection("Ranked Map pool"),
-    unranked: createSection("Unranked"),
-    tdm: createSection("Team Deathmatch"),
-    range: createSection("Practice"),
-  };
+  const allMapsSection = createSection("All Maps");
 
   for (const map of maps) {
-    const type = getMapType(map);
-    if (type === "excluded") continue;
-    const section = sections[type];
-    section._grid.appendChild(createMapCard(map));
+    if (EXCLUDED_MAPS.includes(map.mapUrl)) continue;
+    allMapsSection._grid.appendChild(createMapCard(map));
   }
 
-  Object.values(sections).forEach((section) => container.appendChild(section));
+  container.appendChild(allMapsSection);
 }
 
 function createMapCard(map) {
